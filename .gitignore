@@ -2,3 +2,20 @@
 
 .venv/
 Week2_day4/.venv/
+Week2_day5/.venv/
+Week3_day1/.venv/
+
+
+
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore all venv folders anywhere in the repo
+venv/
+**/venv/
+
+
+# Ignore Streamlit secrets
+.streamlit/secrets.toml

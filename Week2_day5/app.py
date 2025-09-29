@@ -15,7 +15,8 @@ from dotenv import load_dotenv, find_dotenv
 from openai import OpenAI, APIError, APIStatusError, APIConnectionError
 
 # ---------- Setup ----------
-st.set_page_config(page_title="Chat with Memory · Streamlit + OpenAI", page_icon="💬", layout="wide")
+st.set_page_config(page_title="Chat with Cotext-Memory · Streamlit + OpenAI", page_icon="💬", layout="wide")
+st.write("Chatbot who remembers yours past")
 # load_dotenv()
 
 
@@ -45,22 +46,31 @@ st.set_page_config(page_title="Chat with Memory · Streamlit + OpenAI", page_ico
 
 
 
+
 def get_api_key() -> Optional[str]:
     # 1) Hardcoded for local testing
-    if OPENAI_KEY and OPENAI_KEY.startswith("sk-"):
-        return OPENAI_KEY
-    # 2) Otherwise use secrets/env
-    if "OPENAI_API_KEY" in st.secrets:
-        return st.secrets["OPENAI_API_KEY"]
-    return os.getenv("OPENAI_API_KEY")
+    # if OPENAI_KEY and OPENAI_KEY.startswith("sk-"):
+    #     return OPENAI_KEY
+    # # 2) Otherwise use secrets/env
+    # if "OPENAI_API_KEY" in st.secrets:
+    #     return st.secrets["OPENAI_API_KEY"]
+    # return os.getenv("OPENAI_API_KEY")
+    return st.secrets.get("OPENAI_KEY")
 
 
-# ⚠️ Hardcode your key here (for testing only!)
-# Replace with your actual key string
-OPENAI_KEY = ""
+
+
+
+
+# def make_client() -> OpenAI:
+#     return OpenAI(api_key=OPENAI_KEY)
+
 
 def make_client() -> OpenAI:
-    return OpenAI(api_key=OPENAI_KEY)
+    key = get_api_key()
+    if not key:
+        raise RuntimeError("OPENAI_API_KEY not found in st.secrets")
+    return OpenAI(api_key=key)
 
 client = make_client()
 
@@ -103,7 +113,7 @@ client = make_client()
 with st.sidebar:
     st.header("⚙️ Settings")
     key_ok = bool(get_api_key())
-    st.success("API key loaded") if key_ok else st.error("Add OPENAI_API_KEY in st.secrets or .env")
+    # st.success("API key loaded") if key_ok else st.error("Add OPENAI_API_KEY in st.secrets or .env")
 
     st.session_state.model = st.selectbox("Model", SUPPORTED_MODELS, index=SUPPORTED_MODELS.index(st.session_state.model) if st.session_state.model in SUPPORTED_MODELS else 0)
     st.session_state.temperature = st.slider("Temperature", 0.0, 1.0, st.session_state.temperature, 0.05)
@@ -325,7 +335,7 @@ st.markdown(
     <hr style='opacity:0.2'/>
     <small>
     Tip: toggle <b>Stream tokens live</b> off to see token usage per turn (the API reports usage in non-streaming mode).<br/>
-    Keep your key safe—use <code>st.secrets</code> in production.
+
     </small>
     """,
     unsafe_allow_html=True,
